@@ -9,7 +9,7 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -trimpath -ldflags "-w -s" -o ./main cmd/main.go
+RUN go build -trimpath -ldflags "-w -s" -o ./main main.go
 
 FROM alpine:3.17 as runner
 
