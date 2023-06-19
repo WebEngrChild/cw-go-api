@@ -1,14 +1,24 @@
 package main
 
 import (
-	"fmt"
+	"encoding/json"
 	"math/rand"
 	"net/http"
 	"time"
 )
 
+type Response struct {
+	Message string `json:"message"`
+}
+
 func healthHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "API is running")
+	response := Response{
+		Message: "API is running",
+	}
+
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func errorHandler(w http.ResponseWriter, r *http.Request) {
@@ -23,36 +33,61 @@ func errorHandler(w http.ResponseWriter, r *http.Request) {
 		http.StatusGatewayTimeout,
 	}
 
-	// select random error
+	// 任意のステータスエラーをランダム生成
 	rand.Seed(time.Now().UnixNano())
-	w.WriteHeader(errors[rand.Intn(len(errors))])
+	errorIndex := rand.Intn(len(errors))
+	w.WriteHeader(errors[errorIndex])
+
+	response := Response{
+		Message: http.StatusText(errors[errorIndex]),
+	}
+
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func loadMemoryHandler(w http.ResponseWriter, r *http.Request) {
-	// Create a byte slice with 1 GB
-	_ = make([]byte, 1<<30)
+	// 1ビットを30ビット左にシフト（2の29乗）で500MBバイトのメモリ容量を確保
+	_ = make([]byte, 1<<29)
 
-	fmt.Fprint(w, "Increased memory load")
+	response := Response{
+		Message: "Increased memory load",
+	}
+
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func loadCPUHandler(w http.ResponseWriter, r *http.Request) {
 	done := make(chan int)
 
 	go func() {
+		// 無限ループ作成
 		for {
 			select {
+			// doneチャネルからメッセージが送られてきたとき（またはチャネルが閉じられたとき）無限ループを抜ける
 			case <-done:
 				return
+			// 何もせず次のループへ進む
 			default:
 			}
 		}
 	}()
 
+	// 10秒後にチャネルを閉じる
 	time.AfterFunc(10*time.Second, func() {
 		close(done)
 	})
 
-	fmt.Fprint(w, "Increased CPU load")
+	response := Response{
+		Message: "Increased CPU load",
+	}
+
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func main() {
@@ -61,5 +96,7 @@ func main() {
 	http.HandleFunc("/loadMemory", loadMemoryHandler)
 	http.HandleFunc("/loadCpu", loadCPUHandler)
 
-	http.ListenAndServe(":8080", nil)
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		panic(err)
+	}
 }
