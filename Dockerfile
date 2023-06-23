@@ -13,6 +13,8 @@ RUN go build -trimpath -ldflags "-w -s" -o ./main main.go
 
 FROM alpine:3.17 as runner
 
+EXPOSE 8080
+
 RUN apk update && \
     apk add --no-cache shadow && \
     useradd -m appuser && \
