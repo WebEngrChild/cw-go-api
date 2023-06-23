@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"log"
 	"math/rand"
 	"net/http"
 	"time"
@@ -41,6 +42,18 @@ func errorHandler(w http.ResponseWriter, r *http.Request) {
 	response := Response{
 		Message: http.StatusText(errors[errorIndex]),
 	}
+
+	// ログ出力をjson形式に変換する
+	logData := map[string]interface{}{
+		"status_code": errors[errorIndex],
+		"message":     response.Message,
+	}
+	logJSON, err := json.Marshal(logData)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	log.Println(string(logJSON))
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
