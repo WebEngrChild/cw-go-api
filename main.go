@@ -62,7 +62,13 @@ func errorHandler(w http.ResponseWriter, r *http.Request) {
 
 func loadMemoryHandler(w http.ResponseWriter, r *http.Request) {
 	// 1ビットを30ビット左にシフト（2の29乗）で500MBバイトのメモリ容量を確保
-	_ = make([]byte, 1<<29)
+	mem := make([]byte, 1<<29)
+
+	// 30秒後にメモリを解放する
+	go func(memPtr *[]byte) {
+		time.Sleep(30 * time.Second)
+		*memPtr = nil // メモリへの参照を切り、ガーベジコレクションが解放できるようにする
+	}(&mem)
 
 	response := Response{
 		Message: "Increased memory load",
