@@ -103,11 +103,24 @@ func loadCPUHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func delayedResponseHandler(w http.ResponseWriter, r *http.Request) {
+	// 3秒遅延
+	time.Sleep(3 * time.Second)
+
+	response := Response{
+		Message: "遅延が発生",
+	}
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
 func main() {
 	http.HandleFunc("/health", healthHandler)
 	http.HandleFunc("/error", errorHandler)
 	http.HandleFunc("/loadMemory", loadMemoryHandler)
 	http.HandleFunc("/loadCpu", loadCPUHandler)
+	http.HandleFunc("/delayedResponse", delayedResponseHandler)
 
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		panic(err)
