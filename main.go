@@ -108,7 +108,7 @@ func delayedResponseHandler(w http.ResponseWriter, r *http.Request) {
 	time.Sleep(3 * time.Second)
 
 	response := Response{
-		Message: "遅延が発生",
+		Message: "Delay occurred",
 	}
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
