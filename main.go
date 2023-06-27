@@ -34,6 +34,9 @@ func errorHandler(w http.ResponseWriter, r *http.Request) {
 		http.StatusGatewayTimeout,
 	}
 
+	// Set log flags to 0 to disable date and time prefix
+	log.SetFlags(0)
+
 	// 任意のステータスエラーをランダム生成
 	rand.Seed(time.Now().UnixNano())
 	errorIndex := rand.Intn(len(errors))
@@ -45,6 +48,7 @@ func errorHandler(w http.ResponseWriter, r *http.Request) {
 
 	// ログ出力をjson形式に変換する
 	logData := map[string]interface{}{
+		"timestamp":   time.Now().Format(time.RFC3339),
 		"status_code": errors[errorIndex],
 		"message":     response.Message,
 	}
