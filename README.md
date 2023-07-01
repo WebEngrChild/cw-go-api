@@ -25,3 +25,9 @@ $ copilot app init
 # サービス初期設定と初期デプロイ
 $ copilot init
 ```
+
+## STEP:4 アプリケーション削除
+
+```shell
+$ copilot app delete
+```
