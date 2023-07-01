@@ -29,5 +29,9 @@ $ copilot init
 ## STEP:4 アプリケーション削除
 
 ```shell
+# copilotアプリケーション削除
 $ copilot app delete
+
+# cloudformationスタック削除
+$ aws cloudformation delete-stack --stack-name s3-iam
 ```
